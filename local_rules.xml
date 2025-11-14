@@ -1,0 +1,243 @@
+<!-- ======================================================== -->
+<!--                WAZUH SMART DEFENSE RULES                 -->
+<!--                     Total Rules: 20                      -->
+<!-- ======================================================== -->
+<group name="local,syslog,sshd,ssh,smtp,brute_force,dos,spoofing,correlation">
+
+  <rule id="100001" level="10">
+    <program_name>sshd</program_name>
+    <regex>Invalid user .* from</regex>
+    <description>SSH User Enumeration Attempt</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+    <group>brute_force,ssh,medium</group>
+  </rule>
+
+
+  <!-- ========================================================= -->
+  <!-- SSH BRUTE FORCE -->
+  <!-- ========================================================= -->
+  <rule id="100002" level="10" frequency="6" timeframe="300">
+    <if_matched_sid>5710</if_matched_sid>
+    <same_source_ip>true</same_source_ip>
+    <description>SSH Brute Force: 6+ failed logins in 5min</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+    <group>ssh,brute_force,medium,active-response</group>
+  </rule>
+
+  <rule id="100003" level="12" frequency="4" timeframe="600">
+    <if_matched_sid>5710</if_matched_sid>
+    <same_source_ip>true</same_source_ip>
+    <regex>root|admin|oracle|db|sys|administrator</regex>
+    <description>CRITICAL: SSH Brute Force on privileged user</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+    <group>ssh,brute_force,high,active-response</group>
+  </rule>
+
+  <rule id="100004" level="11" frequency="10" timeframe="3600">
+    <if_matched_sid>5710</if_matched_sid>
+    <same_source_ip>true</same_source_ip>
+    <description>Slow SSH Brute Force: 10+ attempts in 1h</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+    <group>ssh,brute_force,slow</group>
+  </rule>
+
+  <rule id="100005" level="10" frequency="8" timeframe="600">
+    <if_matched_sid>5710</if_matched_sid>
+    <regex nocase="true">invalid\s+user</regex>
+    <description>SSH User Enumeration (Recon)</description>
+    <mitre>
+      <id>T1087</id>
+    </mitre>
+    <group>ssh,recon,brute_force</group>
+  </rule>
+  <!-- ========================================================= -->
+  <!-- SSH DoS -->
+  <!-- ========================================================= -->
+  <rule id="100006" level="12" frequency="50" timeframe="120">
+    <if_matched_sid>5710</if_matched_sid>
+    <same_source_ip>true</same_source_ip>
+    <description>SSH DoS: 50+ connections in 2min</description>
+    <mitre>
+      <id>T1498</id>
+    </mitre>
+    <group>ssh,dos,high,active-response</group>
+  </rule>
+
+  <rule id="100007" level="10" frequency="20" timeframe="600">
+    <if_matched_sid>5710</if_matched_sid>
+    <same_source_ip>true</same_source_ip>
+    <description>Slow SSH DoS: 20+ connections in 10min</description>
+    <mitre>
+      <id>T1498</id>
+    </mitre>
+    <group>ssh,dos,medium</group>
+  </rule>
+
+  <!-- ========================================================= -->
+  <!-- SMTP BRUTE FORCE -->
+  <!-- ========================================================= -->
+  <rule id="100008" level="11" frequency="10" timeframe="400">
+    <if_matched_sid>3332</if_matched_sid>
+    <description>SMTP SASL Brute Force</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+    <group>smtp,brute_force,medium,active-response</group>
+  </rule>
+
+  <rule id="100009" level="11" frequency="10" timeframe="300">
+    <decoded_as>postfix</decoded_as>
+    <regex>MAIL FROM:.*authentication failed</regex>
+    <if_matched_sid>5500</if_matched_sid>
+    <same_source_ip>true</same_source_ip>
+    <description>SMTP Brute Force (non-SASL)</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+    <group>smtp,brute_force,medium,active-response</group>
+  </rule>
+
+  <!-- ========================================================= -->
+  <!-- SMTP DoS -->
+  <!-- ========================================================= -->
+  <rule id="100010" level="12" frequency="150" timeframe="60">
+    <decoded_as>postfix</decoded_as>
+    <regex>RCPT TO:</regex>
+    <same_source_ip>true</same_source_ip>
+    <if_matched_sid>5500</if_matched_sid>
+    <description>SMTP DoS: RCPT TO Flood</description>
+    <mitre>
+      <id>T1498</id>
+    </mitre>
+    <group>smtp,dos,high,active-response</group>
+  </rule>
+
+  <!-- ========================================================= -->
+  <!-- SMTP SPOOFING -->
+  <!-- ========================================================= -->
+  <rule id="100011" level="13">
+    <decoded_as>postfix</decoded_as>
+    <regex>hostname .+ does not match IP address \d+.\d+.\d+.\d+\s\S+</regex>
+    <if_matched_sid>3395</if_matched_sid>
+    <description>SMTP Spoofing: Fake HELO/EHLO</description>
+    <mitre>
+      <id>T1566</id>
+    </mitre>
+    <group>smtp,spoofing,high,active-response</group>
+  </rule>
+
+
+  <rule id="100012" level="12">
+    <decoded_as>postfix</decoded_as>
+    <regex>SPF fail|DKIM permfail|DMARC fail</regex>
+    <description>SMTP Identity Spoofing: SPF/DKIM/DMARC Fail</description>
+    <mitre>
+      <id>T1566</id>
+    </mitre>
+    <group>smtp,spoofing,high,active-response</group>
+  </rule>
+
+
+  <!-- ========================================================= -->
+  <!-- ADVANCED CORRELATION RULES                                -->
+  <!-- ========================================================= -->
+
+  <!-- 100013: Distributed Attack (OR logic) -->
+  <rule id="100013" level="14" frequency="3" timeframe="300">
+    <if_matched_group>brute_force|dos</if_matched_group>
+    <description>DISTRIBUTED ATTACK: 3+ brute/DoS events from different IPs</description>
+    <mitre>
+      <id>T1498</id>
+      <id>T1110</id>
+    </mitre>
+    <group>distributed_attack,correlation,high,active-response</group>
+  </rule>
+
+  <!-- 100014: Escalation (OR logic) -->
+  <rule id="100014" level="15" frequency="2" timeframe="86400">
+    <if_matched_sid>100003</if_matched_sid>
+    <if_matched_sid>100006</if_matched_sid>
+    <if_matched_sid>100010</if_matched_sid>
+    <if_matched_sid>100011</if_matched_sid>
+    <if_matched_sid>100012</if_matched_sid>
+    <same_source_ip>true</same_source_ip>
+    <description>ESCALATED: Repeated attack after unblock</description>
+    <mitre>
+      <id>T1566</id>
+      <id>T1498</id>
+    </mitre>
+    <group>escalation,high,active-response</group>
+  </rule>
+
+  <!-- 100015: Cross-Protocol (OR + same_source_ip) -->
+  <rule id="100015" level="14" frequency="5" timeframe="600">
+    <if_matched_group>ssh</if_matched_group>
+    <same_source_ip>true</same_source_ip>
+    <description>Cross-Protocol: SSH attack from IP that also hit SMTP</description>
+    <mitre>
+      <id>T1110</id>
+      <id>T1498</id>
+    </mitre>
+    <group>correlation,high,active-response</group>
+  </rule>
+
+  <rule id="100016" level="12">
+    <decoded_as>postfix</decoded_as>
+    <match>Received:.*\[10\.|Received:.*\[192\.168\.|Received:.*\[172\.(1[6-9]|2[0-9]|3[0-1])\.</match>
+    <description>SMTP Spoofing: Internal IP in external mail header</description>
+    <mitre>
+      <id>T1566</id>
+    </mitre>
+    <group>smtp,spoofing,high,active-response</group>
+  </rule>
+
+  <rule id="100017" level="14" frequency="2" timeframe="600">
+    <if_matched_sid>100003</if_matched_sid>
+    <if_matched_group>sudo</if_matched_group>
+    <same_source_ip>true</same_source_ip>
+    <description>Privilege Escalation after SSH Brute Force</description>
+    <mitre>
+      <id>T1078</id>
+    </mitre>
+    <group>ssh,correlation,high,active-response</group>
+  </rule>
+
+  <rule id="100018" level="13" frequency="5" timeframe="3600">
+    <if_matched_group>brute_force</if_matched_group>
+    <same_field>srcip</same_field>
+    <regex type="pcre2">^(?:(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\.){3}</regex>
+    <description>Adaptive Attacker: 5+ IPs in same /24</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+    <group>correlation,adaptive,high,active-response</group>
+  </rule>
+
+
+
+  <rule id="100019" level="15">
+    <decoded_as>sshd</decoded_as>
+    <regex>honeypot|cowrie|dionaea|kippo</regex>
+    <description>SSH Honeypot Interaction Detected</description>
+    <mitre>
+      <id>T1078</id>
+    </mitre>
+    <group>ssh,honeypot,threat-intel,high,active-response</group>
+  </rule>
+
+  <!-- 100099: Health Check -->
+  <rule id="100099" level="3" frequency="2" timeframe="3600">
+    <if_sid>100001</if_sid>
+    <description>HEALTH: Wazuh Smart Defense Module Active</description>
+    <group>health,monitoring</group>
+  </rule>
+
+</group>
