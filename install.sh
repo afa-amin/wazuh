@@ -1,8 +1,4 @@
 #!/bin/bash
-# Wazuh Smart Defense - Intelligent Auto Installer v3.3
-# Author: [Your Name] | Foundation of National Elites 2025
-# Features: Dependency check, user confirmation, smart feedback
-
 set -euo pipefail
 
 # Colors
