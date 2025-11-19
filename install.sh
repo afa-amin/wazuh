@@ -151,7 +151,5 @@ echo -e "${BLUE}╔════════════════════�
 echo -e "${BLUE}║        INSTALLATION COMPLETED SUCCESSFULLY!              ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════════════════╝${NC}"
 echo
-echo -e "${GREEN}Wazuh Smart Defense Module v3.3 Installed!${NC}"
-echo -e "${YELLOW}You can test Active-Response using:${NC}"
-echo -e "   ${GREEN}$WAZUH_BIN/wazuh-ar-tester.sh${NC}"
+echo -e "${GREEN}Wazuh Smart Defense Module Installed!${NC}"
 echo
