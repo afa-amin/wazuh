@@ -37,14 +37,14 @@
 
 | مرحله | توضیح کامل |
 |-------|-------------|
-| 0     | تشخیص توزیع لینوکس شما (Debian/Ubuntu، Arch، RHEL و مشتقات) |
-| 0     | نصب خودکار تمام وابستگی‌ها: iptables + postfix + sendmail + ipset |
-| 1     | بررسی وجود و فعال بودن سرویس wazuh-manager (در صورت عدم وجود یا توقف، نصب متوقف می‌شود) |
-| 2     | ساخت دایرکتوری‌های مورد نیاز در مسیر /var/ossec |
-| 3     | کپی و تنظیم مالکیت/مجوز فایل ossec.conf (پیکربندی کامل شامل Active Response و ایمیل) |
-| 4     | نصب قوانین سفارشی در مسیر /var/ossec/etc/rules/local_rules.xml |
-| 5     | نصب اسکریپت‌های Active Response پایتون و شل در مسیر /var/ossec/active-response/bin/:<br>• block-ip.py (بلاک کامل IP)<br>• rate-limit.py (محدودسازی نرخ هوشمند)<br>• quarantine_mail.sh (قرنطینه فعالیت SMTP)<br>• notify_soc.sh (ارسال هشدار به SOC) |
-| 6     | راه‌اندازی مجدد امن سرویس wazuh-manager و تأیید موفقیت‌آمیز بودن ری‌استارت |
+| 1     | تشخیص توزیع لینوکس شما (Debian/Ubuntu، Arch، RHEL و مشتقات) |
+| 2     | نصب خودکار تمام وابستگی‌ها: iptables + postfix + sendmail + ipset |
+| 3     | بررسی وجود و فعال بودن سرویس wazuh-manager (در صورت عدم وجود یا توقف، نصب متوقف می‌شود) |
+| 4     | ساخت دایرکتوری‌های مورد نیاز در مسیر /var/ossec |
+| 5     | کپی و تنظیم مالکیت/مجوز فایل ossec.conf (پیکربندی کامل شامل Active Response و ایمیل) |
+| 6     | نصب قوانین سفارشی در مسیر /var/ossec/etc/rules/local_rules.xml |
+| 7     | نصب اسکریپت‌های Active Response پایتون و شل در مسیر /var/ossec/active-response/bin/:<br>• block-ip.py (بلاک کامل IP)<br>• rate-limit.py (محدودسازی نرخ هوشمند)<br>• quarantine_mail.sh (قرنطینه فعالیت SMTP)<br>• notify_soc.sh (ارسال هشدار به SOC) |
+| 8     | راه‌اندازی مجدد امن سرویس wazuh-manager و تأیید موفقیت‌آمیز بودن ری‌استارت |
 
 پس از اتمام، پیام زیر نمایش داده می‌شود:
 Wazuh Smart Defense Module Installed!
