@@ -60,7 +60,7 @@ echo
 # =================================================================
 echo -e "${BLUE}Step 1: Checking Wazuh Manager...${NC}"
 
-if ! systemctl list-units | grep -q "wazuh-manager.service"; then
+if ! systemctl list-unit-files | grep -q "^wazuh-manager.service"; then
     echo -e "${RED}[FATAL] wazuh-manager is NOT installed.${NC}"
     exit 1
 fi
